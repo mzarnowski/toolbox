@@ -1,0 +1,12 @@
+#!/bin/sh
+
+kernel=$(uname -sr)
+case $kernel in
+    Linux*-MANJARO) pamac install go git make;;
+    *) echo "Unsupported kernel: ${kernel}" && exit 1;;
+esac
+
+repo=${1:-git@github.com:mzarnowski/toolbox.git}
+path=${2:-${HOME}/.config/toolbox}
+
+mkdir -p ${path} && git clone "$repo" "$path" && (cd "$path/src/go" && go run apps/bootstrap/main.go)
