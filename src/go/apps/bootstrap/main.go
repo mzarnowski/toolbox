@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 
@@ -17,7 +18,24 @@ func main() {
 	cmd.Stderr = os.Stderr
 
 	fmt.Println(cmd)
-	if err := cmd.Run(); err != nil {
-		panic(err.Error())
+
+	directories := []string{
+		paths.CacheHome("toolbox"),
+		paths.ConfigHome("toolbox"),
 	}
+
+	for _, dir := range directories {
+		if err := os.MkdirAll(dir, fs.ModePerm); err != nil {
+			fail(err)
+		}
+	}
+
+	if err := cmd.Run(); err != nil {
+		fail(err)
+	}
+}
+
+func fail(err error) {
+	fmt.Fprintln(os.Stderr, err.Error())
+	os.Exit(1)
 }
